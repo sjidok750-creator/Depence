@@ -19,7 +19,9 @@ const store = load();
 const selection = { map: store.map || 'meadow', difficulty: store.difficulty || 'normal' };
 
 let game = null;
-const ui = { hover: null, placing: null, selected: null, touchPreview: null };
+let isTouch = false;
+window.addEventListener('pointerdown', (e) => { isTouch = e.pointerType === 'touch'; }, { capture: true, passive: true });
+const ui = { hover: null, placing: null, selected: null };
 let running = false;
 let lastFrame = 0;
 let acc = 0;
@@ -92,13 +94,6 @@ const input = new Input(canvas, {
     audio.unlock();
     if (!game || game.paused) return;
     if (ui.placing) {
-      // Touch has no hover: first tap previews the ghost, second tap confirms.
-      if (e && e.pointerType === 'touch' && !(ui.touchPreview && ui.touchPreview.c === t.c && ui.touchPreview.r === t.r)) {
-        ui.touchPreview = { c: t.c, r: t.r };
-        ui.hover = t;
-        return;
-      }
-      ui.touchPreview = null;
       if (game.canPlace(ui.placing, t.c, t.r)) {
         game.placeTower(ui.placing, t.c, t.r);
         // Keep placing if affordable (fast building), otherwise drop the tool.
@@ -124,11 +119,18 @@ const input = new Input(canvas, {
     else if (ui.selected) select(null);
   },
   onCancel: () => cancel(),
+  onCancelGesture: () => {
+    ui.hover = null;
+  },
   onKey: (key, e) => onKey(key, e),
 });
+document.getElementById('btn-cancel-place').addEventListener('click', () => cancel());
 
 function updateCursor() {
   canvas.classList.toggle('is-placing', !!ui.placing);
+  const chip = document.getElementById('btn-cancel-place');
+  chip.hidden = !ui.placing;
+  if (ui.placing) chip.textContent = `${TOWERS[ui.placing].name} 배치 중 · 취소 ✕`;
   canvas.classList.toggle('is-pointer', !ui.placing && !!(ui.hover && game && game.map.towerAt(ui.hover.c, ui.hover.r)));
 }
 
@@ -155,6 +157,11 @@ function pickTower(id) {
     ui.placing = id;
     ui.selected = null;
     audio.play('select');
+    if (isTouch && !store.touchHintShown) {
+      hud.toast('맵을 누른 채 끌어서 원하는 칸에서 손을 떼면 배치돼요');
+      store.touchHintShown = true;
+      save();
+    }
   }
   updateCursor();
 }

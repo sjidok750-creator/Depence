@@ -16,6 +16,10 @@ export class Input {
     canvas.addEventListener('pointermove', (e) => this.onMove(e));
     canvas.addEventListener('pointerdown', (e) => this.onDown(e));
     canvas.addEventListener('pointerup', (e) => this.onUp(e));
+    canvas.addEventListener('pointercancel', () => {
+      this.down = null;
+      this.h.onCancelGesture?.();
+    });
     canvas.addEventListener('pointerleave', () => {
       this.hover = null;
       this.h.onHover?.(null);
@@ -70,9 +74,13 @@ export class Input {
     const moved = Math.hypot(e.clientX - this.down.x, e.clientY - this.down.y);
     const held = performance.now() - this.down.t;
     this.down = null;
-    if (moved > 14 || held > 900) return; // treat as drag / long press
     const t = this.toTile(e);
-    if (t) this.h.onClick?.(t, e);
+    if (!t) return;
+    // Touch: the finger can be dragged to aim the ghost, releasing commits.
+    // Mouse: a drag or long press is not a click.
+    const touch = e.pointerType === 'touch' || e.pointerType === 'pen';
+    if (!touch && (moved > 14 || held > 900)) return;
+    this.h.onClick?.(t, e);
   }
 
   onKey(e) {

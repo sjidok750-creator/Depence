@@ -132,7 +132,7 @@ h1, h2, p { margin: 0; }
 }
 .banner-inner {
   text-align: center; padding: 14px 34px; border-radius: 16px;
-  background: rgba(15, 20, 30, 0.72); backdrop-filter: blur(6px);
+  background: rgba(15, 20, 30, 0.72); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
   border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
 }
@@ -151,8 +151,16 @@ h1, h2, p { margin: 0; }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 .toast.warn { color: #ffb3b3; }
 
+.cancel-chip {
+  position: absolute; left: 50%; top: 14px; transform: translateX(-50%);
+  padding: 9px 16px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(15, 20, 30, 0.82); color: #ffb3b3; font-weight: 800; font-size: 14px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35); animation: fade 0.15s ease;
+}
+.cancel-chip:active { transform: translateX(-50%) scale(0.96); }
+
 /* Pause veil */
-.pause-veil { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(10, 14, 22, 0.55); backdrop-filter: blur(3px); }
+.pause-veil { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(10, 14, 22, 0.55); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
 .pause-card { text-align: center; padding: 26px 40px; background: var(--panel); border-radius: 18px; border: 1px solid var(--line); box-shadow: var(--shadow); }
 .pause-title { font-size: 26px; font-weight: 900; }
 .pause-hint { color: var(--muted); margin: 6px 0 16px; }
@@ -250,7 +258,7 @@ h1, h2, p { margin: 0; }
 /* ------------------------------------------------------------- screens */
 .screen {
   position: absolute; inset: 0; display: grid; place-items: center;
-  background: rgba(10, 14, 22, 0.66); backdrop-filter: blur(6px); z-index: 10;
+  background: rgba(10, 14, 22, 0.66); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); z-index: 10;
   animation: fade 0.25s ease;
 }
 .screen[hidden] { display: none; }
