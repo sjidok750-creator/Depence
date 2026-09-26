@@ -1,0 +1,17 @@
+{
+  "name": "tiny-bastion",
+  "version": "1.0.0",
+  "description": "Tiny Bastion — a polished, cute tower-defense game built with vanilla HTML5 Canvas and ES modules.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node tools/serve.mjs",
+    "test": "node --test test/*.test.js",
+    "sim": "node tools/sim.mjs",
+    "e2e": "node tools/e2e.mjs"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "playwright-core": "^1.56.1"
+  }
+}

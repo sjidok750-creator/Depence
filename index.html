@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+  <title>Tiny Bastion · 작은 요새</title>
+  <meta name="description" content="아기자기한 캐릭터와 부드러운 조작의 타워 디펜스. 30개의 웨이브에서 작은 요새를 지켜내세요." />
+  <meta name="theme-color" content="#1c2230" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='10' y='22' width='44' height='34' rx='4' fill='%23e8e0d4'/%3E%3Crect x='6' y='14' width='14' height='42' rx='3' fill='%23e8e0d4'/%3E%3Crect x='44' y='14' width='14' height='42' rx='3' fill='%23e8e0d4'/%3E%3Cpath d='M26 56V40a6 6 0 0 1 12 0v16z' fill='%233d2c1e'/%3E%3Cpath d='M32 8v14' stroke='%235a4634' stroke-width='3'/%3E%3Cpath d='M32 8h14l-4 5 4 5H32z' fill='%23ff6b8a'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="app" class="app" aria-live="polite">
+    <header class="topbar" id="topbar">
+      <div class="brand" title="Tiny Bastion">
+        <span class="brand-icon">🏰</span>
+        <span class="brand-text">Tiny<b>Bastion</b></span>
+      </div>
+      <div class="stat" id="stat-wave" title="웨이브">
+        <span class="stat-icon">🌊</span>
+        <span class="stat-value"><span id="wave-now">0</span><span class="stat-sub">/<span id="wave-max">30</span></span></span>
+      </div>
+      <div class="stat" id="stat-gold" title="골드">
+        <span class="stat-icon">🪙</span>
+        <span class="stat-value" id="gold">0</span>
+      </div>
+      <div class="stat" id="stat-lives" title="생명">
+        <span class="stat-icon">❤️</span>
+        <span class="stat-value" id="lives">0</span>
+      </div>
+      <div class="spacer"></div>
+      <div class="controls">
+        <div class="seg" id="speed-seg" role="group" aria-label="게임 속도">
+          <button class="seg-btn is-active" data-speed="1">1×</button>
+          <button class="seg-btn" data-speed="2">2×</button>
+          <button class="seg-btn" data-speed="3">3×</button>
+        </div>
+        <button class="icon-btn" id="btn-pause" title="일시정지 (P)" aria-label="일시정지">⏸</button>
+        <button class="icon-btn" id="btn-sound" title="소리 (M)" aria-label="소리">🔊</button>
+        <button class="icon-btn" id="btn-music" title="음악" aria-label="음악">🎵</button>
+        <button class="icon-btn" id="btn-help" title="도움말 (H)" aria-label="도움말">?</button>
+        <button class="icon-btn" id="btn-menu" title="메뉴로" aria-label="메뉴로">☰</button>
+      </div>
+    </header>
+
+    <main class="stage">
+      <div class="canvas-wrap" id="canvas-wrap">
+        <canvas id="game" width="960" height="576" aria-label="게임 화면"></canvas>
+        <div class="banner" id="banner" aria-hidden="true"><div class="banner-inner"><div class="banner-title" id="banner-title"></div><div class="banner-sub" id="banner-sub"></div></div></div>
+        <div class="toast" id="toast" aria-hidden="true"></div>
+        <div class="pause-veil" id="pause-veil" hidden><div class="pause-card"><div class="pause-title">일시정지</div><div class="pause-hint">P 또는 Space로 계속</div><button class="btn btn-primary" id="btn-resume">계속하기</button></div></div>
+      </div>
+
+      <aside class="panel" id="panel">
+        <section class="shop" id="shop" aria-label="타워 상점"></section>
+
+        <section class="info" id="info"></section>
+
+        <section class="wave-box">
+          <div class="wave-preview" id="wave-preview"></div>
+          <button class="btn btn-wave" id="btn-wave">
+            <span class="btn-wave-label" id="btn-wave-label">웨이브 시작</span>
+            <span class="btn-wave-sub" id="btn-wave-sub"></span>
+            <span class="btn-wave-bar" id="btn-wave-bar"></span>
+          </button>
+        </section>
+      </aside>
+    </main>
+
+    <!-- Main menu -->
+    <div class="screen" id="screen-menu">
+      <div class="menu-card">
+        <div class="menu-hero">
+          <canvas id="menu-hero-canvas" width="360" height="120" aria-hidden="true"></canvas>
+          <h1>Tiny <span>Bastion</span></h1>
+          <p class="tagline">작은 요새를 30개의 웨이브로부터 지켜내세요.</p>
+        </div>
+        <div class="menu-section">
+          <h2>맵 선택</h2>
+          <div class="map-grid" id="map-grid"></div>
+        </div>
+        <div class="menu-section">
+          <h2>난이도</h2>
+          <div class="diff-grid" id="diff-grid"></div>
+        </div>
+        <div class="menu-actions">
+          <button class="btn btn-primary btn-big" id="btn-start">게임 시작</button>
+          <button class="btn btn-ghost" id="btn-menu-help">조작법</button>
+        </div>
+        <div class="best" id="best"></div>
+      </div>
+    </div>
+
+    <!-- End screen -->
+    <div class="screen" id="screen-end" hidden>
+      <div class="menu-card end-card">
+        <h1 id="end-title">승리!</h1>
+        <p class="tagline" id="end-sub"></p>
+        <div class="stats-grid" id="end-stats"></div>
+        <div class="menu-actions">
+          <button class="btn btn-primary btn-big" id="btn-endless" hidden>무한 모드 계속</button>
+          <button class="btn btn-primary btn-big" id="btn-retry">다시 도전</button>
+          <button class="btn btn-ghost" id="btn-end-menu">메뉴로</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Help -->
+    <div class="screen" id="screen-help" hidden>
+      <div class="menu-card help-card">
+        <h1>조작법</h1>
+        <div class="help-grid">
+          <div><kbd>1</kbd>–<kbd>5</kbd></div><div>타워 선택 (다시 누르면 취소)</div>
+          <div><kbd>클릭</kbd></div><div>타워 배치 / 타워 선택</div>
+          <div><kbd>우클릭</kbd> <kbd>Esc</kbd></div><div>선택 취소</div>
+          <div><kbd>Space</kbd></div><div>웨이브 시작 / 다음 웨이브 조기 호출</div>
+          <div><kbd>U</kbd></div><div>선택한 타워 업그레이드</div>
+          <div><kbd>S</kbd></div><div>선택한 타워 판매 (투자금의 70%)</div>
+          <div><kbd>T</kbd></div><div>타겟 방식 전환 (선두 / 후미 / 강한 적 / 가까운 적)</div>
+          <div><kbd>P</kbd></div><div>일시정지</div>
+          <div><kbd>F</kbd></div><div>게임 속도 전환 (1× → 2× → 3×)</div>
+          <div><kbd>M</kbd></div><div>소리 켜기 / 끄기</div>
+        </div>
+        <div class="help-tips">
+          <h2>팁</h2>
+          <ul>
+            <li>길이 꺾이는 모서리에 타워를 두면 더 오래 사격할 수 있어요.</li>
+            <li><b>박쥐</b>와 <b>드레이크</b>는 길을 무시하고 요새로 직진합니다. 대포는 공중을 못 맞혀요.</li>
+            <li><b>주술사</b>는 주변 적을 치료합니다. 먼저 처치하세요. (타겟: 강한 적)</li>
+            <li><b>딱정벌레</b>와 <b>골렘</b>은 방어력이 있어 약한 공격을 튕겨냅니다. 번개탑·저격탑이 효과적.</li>
+            <li>웨이브를 일찍 부르면 남은 시간만큼 보너스 골드를 받아요.</li>
+          </ul>
+        </div>
+        <div class="menu-actions"><button class="btn btn-primary" id="btn-help-close">닫기</button></div>
+      </div>
+    </div>
+  </div>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
